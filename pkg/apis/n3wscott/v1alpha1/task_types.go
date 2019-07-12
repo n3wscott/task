@@ -27,41 +27,41 @@ import (
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// AddressableService is a Knative abstraction that encapsulates the interface by which Knative
+// Task is a Knative abstraction that encapsulates the interface by which Knative
 // components express a desire to have a particular image cached.
-type AddressableService struct {
+type Task struct {
 	metav1.TypeMeta `json:",inline"`
 	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// Spec holds the desired state of the AddressableService (from the client).
+	// Spec holds the desired state of the Task (from the client).
 	// +optional
-	Spec AddressableServiceSpec `json:"spec,omitempty"`
+	Spec TaskSpec `json:"spec,omitempty"`
 
-	// Status communicates the observed state of the AddressableService (from the controller).
+	// Status communicates the observed state of the Task (from the controller).
 	// +optional
-	Status AddressableServiceStatus `json:"status,omitempty"`
+	Status TaskStatus `json:"status,omitempty"`
 }
 
-// Check that AddressableService can be validated and defaulted.
-var _ apis.Validatable = (*AddressableService)(nil)
-var _ apis.Defaultable = (*AddressableService)(nil)
-var _ kmeta.OwnerRefable = (*AddressableService)(nil)
+// Check that Task can be validated and defaulted.
+var _ apis.Validatable = (*Task)(nil)
+var _ apis.Defaultable = (*Task)(nil)
+var _ kmeta.OwnerRefable = (*Task)(nil)
 
-// AddressableServiceSpec holds the desired state of the AddressableService (from the client).
-type AddressableServiceSpec struct {
+// TaskSpec holds the desired state of the Task (from the client).
+type TaskSpec struct {
 	// ServiceName holds the name of the Kubernetes Service to expose as an "addressable".
 	ServiceName string `json:"serviceName"`
 }
 
 const (
-	// AddressableServiceConditionReady is set when the revision is starting to materialize
+	// TaskConditionReady is set when the revision is starting to materialize
 	// runtime resources, and becomes true when those resources are ready.
-	AddressableServiceConditionReady = apis.ConditionReady
+	TaskConditionReady = apis.ConditionSucceeded
 )
 
-// AddressableServiceStatus communicates the observed state of the AddressableService (from the controller).
-type AddressableServiceStatus struct {
+// TaskStatus communicates the observed state of the Task (from the controller).
+type TaskStatus struct {
 	duckv1beta1.Status `json:",inline"`
 
 	// Address holds the information needed to connect this Addressable up to receive events.
@@ -71,10 +71,10 @@ type AddressableServiceStatus struct {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// AddressableServiceList is a list of AddressableService resources
-type AddressableServiceList struct {
+// TaskList is a list of Task resources
+type TaskList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
 
-	Items []AddressableService `json:"items"`
+	Items []Task `json:"items"`
 }

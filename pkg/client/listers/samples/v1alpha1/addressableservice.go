@@ -22,67 +22,67 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/tools/cache"
-	v1alpha1 "knative.dev/sample-controller/pkg/apis/samples/v1alpha1"
+	v1alpha1 "github.com/n3wscott/task/pkg/apis/n3wscott/v1alpha1"
 )
 
-// AddressableServiceLister helps list AddressableServices.
-type AddressableServiceLister interface {
-	// List lists all AddressableServices in the indexer.
-	List(selector labels.Selector) (ret []*v1alpha1.AddressableService, err error)
-	// AddressableServices returns an object that can list and get AddressableServices.
-	AddressableServices(namespace string) AddressableServiceNamespaceLister
-	AddressableServiceListerExpansion
+// TaskLister helps list Tasks.
+type TaskLister interface {
+	// List lists all Tasks in the indexer.
+	List(selector labels.Selector) (ret []*v1alpha1.Task, err error)
+	// Tasks returns an object that can list and get Tasks.
+	Tasks(namespace string) TaskNamespaceLister
+	TaskListerExpansion
 }
 
-// addressableServiceLister implements the AddressableServiceLister interface.
+// addressableServiceLister implements the TaskLister interface.
 type addressableServiceLister struct {
 	indexer cache.Indexer
 }
 
-// NewAddressableServiceLister returns a new AddressableServiceLister.
-func NewAddressableServiceLister(indexer cache.Indexer) AddressableServiceLister {
+// NewTaskLister returns a new TaskLister.
+func NewTaskLister(indexer cache.Indexer) TaskLister {
 	return &addressableServiceLister{indexer: indexer}
 }
 
-// List lists all AddressableServices in the indexer.
-func (s *addressableServiceLister) List(selector labels.Selector) (ret []*v1alpha1.AddressableService, err error) {
+// List lists all Tasks in the indexer.
+func (s *addressableServiceLister) List(selector labels.Selector) (ret []*v1alpha1.Task, err error) {
 	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1alpha1.AddressableService))
+		ret = append(ret, m.(*v1alpha1.Task))
 	})
 	return ret, err
 }
 
-// AddressableServices returns an object that can list and get AddressableServices.
-func (s *addressableServiceLister) AddressableServices(namespace string) AddressableServiceNamespaceLister {
+// Tasks returns an object that can list and get Tasks.
+func (s *addressableServiceLister) Tasks(namespace string) TaskNamespaceLister {
 	return addressableServiceNamespaceLister{indexer: s.indexer, namespace: namespace}
 }
 
-// AddressableServiceNamespaceLister helps list and get AddressableServices.
-type AddressableServiceNamespaceLister interface {
-	// List lists all AddressableServices in the indexer for a given namespace.
-	List(selector labels.Selector) (ret []*v1alpha1.AddressableService, err error)
-	// Get retrieves the AddressableService from the indexer for a given namespace and name.
-	Get(name string) (*v1alpha1.AddressableService, error)
-	AddressableServiceNamespaceListerExpansion
+// TaskNamespaceLister helps list and get Tasks.
+type TaskNamespaceLister interface {
+	// List lists all Tasks in the indexer for a given namespace.
+	List(selector labels.Selector) (ret []*v1alpha1.Task, err error)
+	// Get retrieves the Task from the indexer for a given namespace and name.
+	Get(name string) (*v1alpha1.Task, error)
+	TaskNamespaceListerExpansion
 }
 
-// addressableServiceNamespaceLister implements the AddressableServiceNamespaceLister
+// addressableServiceNamespaceLister implements the TaskNamespaceLister
 // interface.
 type addressableServiceNamespaceLister struct {
 	indexer   cache.Indexer
 	namespace string
 }
 
-// List lists all AddressableServices in the indexer for a given namespace.
-func (s addressableServiceNamespaceLister) List(selector labels.Selector) (ret []*v1alpha1.AddressableService, err error) {
+// List lists all Tasks in the indexer for a given namespace.
+func (s addressableServiceNamespaceLister) List(selector labels.Selector) (ret []*v1alpha1.Task, err error) {
 	err = cache.ListAllByNamespace(s.indexer, s.namespace, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1alpha1.AddressableService))
+		ret = append(ret, m.(*v1alpha1.Task))
 	})
 	return ret, err
 }
 
-// Get retrieves the AddressableService from the indexer for a given namespace and name.
-func (s addressableServiceNamespaceLister) Get(name string) (*v1alpha1.AddressableService, error) {
+// Get retrieves the Task from the indexer for a given namespace and name.
+func (s addressableServiceNamespaceLister) Get(name string) (*v1alpha1.Task, error) {
 	obj, exists, err := s.indexer.GetByKey(s.namespace + "/" + name)
 	if err != nil {
 		return nil, err
@@ -90,5 +90,5 @@ func (s addressableServiceNamespaceLister) Get(name string) (*v1alpha1.Addressab
 	if !exists {
 		return nil, errors.NewNotFound(v1alpha1.Resource("addressableservice"), name)
 	}
-	return obj.(*v1alpha1.AddressableService), nil
+	return obj.(*v1alpha1.Task), nil
 }

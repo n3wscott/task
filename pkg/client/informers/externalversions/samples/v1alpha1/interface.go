@@ -19,13 +19,13 @@ limitations under the License.
 package v1alpha1
 
 import (
-	internalinterfaces "knative.dev/sample-controller/pkg/client/informers/externalversions/internalinterfaces"
+	internalinterfaces "github.com/n3wscott/task/pkg/client/informers/externalversions/internalinterfaces"
 )
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
-	// AddressableServices returns a AddressableServiceInformer.
-	AddressableServices() AddressableServiceInformer
+	// Tasks returns a TaskInformer.
+	Tasks() TaskInformer
 }
 
 type version struct {
@@ -39,7 +39,7 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
 }
 
-// AddressableServices returns a AddressableServiceInformer.
-func (v *version) AddressableServices() AddressableServiceInformer {
+// Tasks returns a TaskInformer.
+func (v *version) Tasks() TaskInformer {
 	return &addressableServiceInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }

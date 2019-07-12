@@ -19,14 +19,14 @@ limitations under the License.
 package fake
 
 import (
+	clientset "github.com/n3wscott/task/pkg/client/clientset/versioned"
+	n3wscottv1alpha1 "github.com/n3wscott/task/pkg/client/clientset/versioned/typed/n3wscott/v1alpha1"
+	faken3wscottv1alpha1 "github.com/n3wscott/task/pkg/client/clientset/versioned/typed/n3wscott/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	"k8s.io/client-go/testing"
-	clientset "knative.dev/sample-controller/pkg/client/clientset/versioned"
-	samplesv1alpha1 "knative.dev/sample-controller/pkg/client/clientset/versioned/typed/samples/v1alpha1"
-	fakesamplesv1alpha1 "knative.dev/sample-controller/pkg/client/clientset/versioned/typed/samples/v1alpha1/fake"
 )
 
 // NewSimpleClientset returns a clientset that will respond with the provided objects.
@@ -71,12 +71,12 @@ func (c *Clientset) Discovery() discovery.DiscoveryInterface {
 
 var _ clientset.Interface = &Clientset{}
 
-// SamplesV1alpha1 retrieves the SamplesV1alpha1Client
-func (c *Clientset) SamplesV1alpha1() samplesv1alpha1.SamplesV1alpha1Interface {
-	return &fakesamplesv1alpha1.FakeSamplesV1alpha1{Fake: &c.Fake}
+// N3wscottV1alpha1 retrieves the N3wscottV1alpha1Client
+func (c *Clientset) N3wscottV1alpha1() n3wscottv1alpha1.N3wscottV1alpha1Interface {
+	return &faken3wscottv1alpha1.FakeN3wscottV1alpha1{Fake: &c.Fake}
 }
 
-// Samples retrieves the SamplesV1alpha1Client
-func (c *Clientset) Samples() samplesv1alpha1.SamplesV1alpha1Interface {
-	return &fakesamplesv1alpha1.FakeSamplesV1alpha1{Fake: &c.Fake}
+// N3wscott retrieves the N3wscottV1alpha1Client
+func (c *Clientset) N3wscott() n3wscottv1alpha1.N3wscottV1alpha1Interface {
+	return &faken3wscottv1alpha1.FakeN3wscottV1alpha1{Fake: &c.Fake}
 }

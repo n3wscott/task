@@ -23,8 +23,8 @@ import (
 
 	controller "knative.dev/pkg/controller"
 	injection "knative.dev/pkg/injection"
-	fake "knative.dev/sample-controller/pkg/client/injection/informers/samples/factory/fake"
-	addressableservice "knative.dev/sample-controller/pkg/client/injection/informers/samples/v1alpha1/addressableservice"
+	fake "github.com/n3wscott/task/pkg/client/injection/informers/samples/factory/fake"
+	addressableservice "github.com/n3wscott/task/pkg/client/injection/informers/samples/v1alpha1/addressableservice"
 )
 
 var Get = addressableservice.Get
@@ -35,6 +35,6 @@ func init() {
 
 func withInformer(ctx context.Context) (context.Context, controller.Informer) {
 	f := fake.Get(ctx)
-	inf := f.Samples().V1alpha1().AddressableServices()
+	inf := f.Samples().V1alpha1().Tasks()
 	return context.WithValue(ctx, addressableservice.Key{}, inf), inf.Informer()
 }

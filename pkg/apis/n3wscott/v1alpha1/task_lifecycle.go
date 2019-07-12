@@ -21,24 +21,24 @@ import (
 	"knative.dev/pkg/apis"
 )
 
-var condSet = apis.NewLivingConditionSet()
+var condSet = apis.NewBatchConditionSet()
 
 // GetGroupVersionKind implements kmeta.OwnerRefable
-func (as *AddressableService) GetGroupVersionKind() schema.GroupVersionKind {
-	return SchemeGroupVersion.WithKind("AddressableService")
+func (as *Task) GetGroupVersionKind() schema.GroupVersionKind {
+	return SchemeGroupVersion.WithKind("Task")
 }
 
-func (ass *AddressableServiceStatus) InitializeConditions() {
+func (ass *TaskStatus) InitializeConditions() {
 	condSet.Manage(ass).InitializeConditions()
 }
 
-func (ass *AddressableServiceStatus) MarkServiceUnavailable(name string) {
+func (ass *TaskStatus) MarkServiceUnavailable(name string) {
 	condSet.Manage(ass).MarkFalse(
-		AddressableServiceConditionReady,
+		TaskConditionReady,
 		"ServiceUnavailable",
 		"Service %q wasn't found.", name)
 }
 
-func (ass *AddressableServiceStatus) MarkServiceAvailable() {
-	condSet.Manage(ass).MarkTrue(AddressableServiceConditionReady)
+func (ass *TaskStatus) MarkServiceAvailable() {
+	condSet.Manage(ass).MarkTrue(TaskConditionReady)
 }

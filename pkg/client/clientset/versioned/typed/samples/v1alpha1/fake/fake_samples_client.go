@@ -21,15 +21,15 @@ package fake
 import (
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
-	v1alpha1 "knative.dev/sample-controller/pkg/client/clientset/versioned/typed/samples/v1alpha1"
+	v1alpha1 "github.com/n3wscott/task/pkg/client/clientset/versioned/typed/samples/v1alpha1"
 )
 
 type FakeSamplesV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeSamplesV1alpha1) AddressableServices(namespace string) v1alpha1.AddressableServiceInterface {
-	return &FakeAddressableServices{c, namespace}
+func (c *FakeSamplesV1alpha1) Tasks(namespace string) v1alpha1.TaskInterface {
+	return &FakeTasks{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

@@ -25,34 +25,34 @@ import (
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	testing "k8s.io/client-go/testing"
-	v1alpha1 "knative.dev/sample-controller/pkg/apis/samples/v1alpha1"
+	v1alpha1 "github.com/n3wscott/task/pkg/apis/n3wscott/v1alpha1"
 )
 
-// FakeAddressableServices implements AddressableServiceInterface
-type FakeAddressableServices struct {
+// FakeTasks implements TaskInterface
+type FakeTasks struct {
 	Fake *FakeSamplesV1alpha1
 	ns   string
 }
 
-var addressableservicesResource = schema.GroupVersionResource{Group: "samples.knative.dev", Version: "v1alpha1", Resource: "addressableservices"}
+var addressableservicesResource = schema.GroupVersionResource{Group: "n3wscott.com", Version: "v1alpha1", Resource: "addressableservices"}
 
-var addressableservicesKind = schema.GroupVersionKind{Group: "samples.knative.dev", Version: "v1alpha1", Kind: "AddressableService"}
+var addressableservicesKind = schema.GroupVersionKind{Group: "n3wscott.com", Version: "v1alpha1", Kind: "Task"}
 
 // Get takes name of the addressableService, and returns the corresponding addressableService object, and an error if there is any.
-func (c *FakeAddressableServices) Get(name string, options v1.GetOptions) (result *v1alpha1.AddressableService, err error) {
+func (c *FakeTasks) Get(name string, options v1.GetOptions) (result *v1alpha1.Task, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewGetAction(addressableservicesResource, c.ns, name), &v1alpha1.AddressableService{})
+		Invokes(testing.NewGetAction(addressableservicesResource, c.ns, name), &v1alpha1.Task{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha1.AddressableService), err
+	return obj.(*v1alpha1.Task), err
 }
 
-// List takes label and field selectors, and returns the list of AddressableServices that match those selectors.
-func (c *FakeAddressableServices) List(opts v1.ListOptions) (result *v1alpha1.AddressableServiceList, err error) {
+// List takes label and field selectors, and returns the list of Tasks that match those selectors.
+func (c *FakeTasks) List(opts v1.ListOptions) (result *v1alpha1.TaskList, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewListAction(addressableservicesResource, addressableservicesKind, c.ns, opts), &v1alpha1.AddressableServiceList{})
+		Invokes(testing.NewListAction(addressableservicesResource, addressableservicesKind, c.ns, opts), &v1alpha1.TaskList{})
 
 	if obj == nil {
 		return nil, err
@@ -62,8 +62,8 @@ func (c *FakeAddressableServices) List(opts v1.ListOptions) (result *v1alpha1.Ad
 	if label == nil {
 		label = labels.Everything()
 	}
-	list := &v1alpha1.AddressableServiceList{ListMeta: obj.(*v1alpha1.AddressableServiceList).ListMeta}
-	for _, item := range obj.(*v1alpha1.AddressableServiceList).Items {
+	list := &v1alpha1.TaskList{ListMeta: obj.(*v1alpha1.TaskList).ListMeta}
+	for _, item := range obj.(*v1alpha1.TaskList).Items {
 		if label.Matches(labels.Set(item.Labels)) {
 			list.Items = append(list.Items, item)
 		}
@@ -72,69 +72,69 @@ func (c *FakeAddressableServices) List(opts v1.ListOptions) (result *v1alpha1.Ad
 }
 
 // Watch returns a watch.Interface that watches the requested addressableServices.
-func (c *FakeAddressableServices) Watch(opts v1.ListOptions) (watch.Interface, error) {
+func (c *FakeTasks) Watch(opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewWatchAction(addressableservicesResource, c.ns, opts))
 
 }
 
 // Create takes the representation of a addressableService and creates it.  Returns the server's representation of the addressableService, and an error, if there is any.
-func (c *FakeAddressableServices) Create(addressableService *v1alpha1.AddressableService) (result *v1alpha1.AddressableService, err error) {
+func (c *FakeTasks) Create(addressableService *v1alpha1.Task) (result *v1alpha1.Task, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewCreateAction(addressableservicesResource, c.ns, addressableService), &v1alpha1.AddressableService{})
+		Invokes(testing.NewCreateAction(addressableservicesResource, c.ns, addressableService), &v1alpha1.Task{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha1.AddressableService), err
+	return obj.(*v1alpha1.Task), err
 }
 
 // Update takes the representation of a addressableService and updates it. Returns the server's representation of the addressableService, and an error, if there is any.
-func (c *FakeAddressableServices) Update(addressableService *v1alpha1.AddressableService) (result *v1alpha1.AddressableService, err error) {
+func (c *FakeTasks) Update(addressableService *v1alpha1.Task) (result *v1alpha1.Task, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewUpdateAction(addressableservicesResource, c.ns, addressableService), &v1alpha1.AddressableService{})
+		Invokes(testing.NewUpdateAction(addressableservicesResource, c.ns, addressableService), &v1alpha1.Task{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha1.AddressableService), err
+	return obj.(*v1alpha1.Task), err
 }
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeAddressableServices) UpdateStatus(addressableService *v1alpha1.AddressableService) (*v1alpha1.AddressableService, error) {
+func (c *FakeTasks) UpdateStatus(addressableService *v1alpha1.Task) (*v1alpha1.Task, error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceAction(addressableservicesResource, "status", c.ns, addressableService), &v1alpha1.AddressableService{})
+		Invokes(testing.NewUpdateSubresourceAction(addressableservicesResource, "status", c.ns, addressableService), &v1alpha1.Task{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha1.AddressableService), err
+	return obj.(*v1alpha1.Task), err
 }
 
 // Delete takes name of the addressableService and deletes it. Returns an error if one occurs.
-func (c *FakeAddressableServices) Delete(name string, options *v1.DeleteOptions) error {
+func (c *FakeTasks) Delete(name string, options *v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(addressableservicesResource, c.ns, name), &v1alpha1.AddressableService{})
+		Invokes(testing.NewDeleteAction(addressableservicesResource, c.ns, name), &v1alpha1.Task{})
 
 	return err
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeAddressableServices) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
+func (c *FakeTasks) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
 	action := testing.NewDeleteCollectionAction(addressableservicesResource, c.ns, listOptions)
 
-	_, err := c.Fake.Invokes(action, &v1alpha1.AddressableServiceList{})
+	_, err := c.Fake.Invokes(action, &v1alpha1.TaskList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched addressableService.
-func (c *FakeAddressableServices) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.AddressableService, err error) {
+func (c *FakeTasks) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.Task, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(addressableservicesResource, c.ns, name, data, subresources...), &v1alpha1.AddressableService{})
+		Invokes(testing.NewPatchSubresourceAction(addressableservicesResource, c.ns, name, data, subresources...), &v1alpha1.Task{})
 
 	if obj == nil {
 		return nil, err
 	}
-	return obj.(*v1alpha1.AddressableService), err
+	return obj.(*v1alpha1.Task), err
 }

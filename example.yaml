@@ -1,7 +1,7 @@
-apiVersion: samples.knative.dev/v1alpha1
-kind: AddressableService
+apiVersion: n3wscott.com/v1alpha1
+kind: Task
 metadata:
   name: make-it-addressable
-  namespace: knative-samples
+  namespace: n3wscott-system
 spec:
   serviceName: webhook

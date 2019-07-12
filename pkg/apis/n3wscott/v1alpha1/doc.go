@@ -1,5 +1,5 @@
 /*
-Copyright 2019 The Knative Authors.
+Copyright 2019 The Knative Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,23 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// +k8s:deepcopy-gen=package
+// +groupName=n3wscott.com
 package v1alpha1
-
-import (
-	"context"
-
-	"knative.dev/pkg/apis"
-)
-
-// Validate implements apis.Validatable
-func (as *AddressableService) Validate(ctx context.Context) *apis.FieldError {
-	return as.Spec.Validate(ctx).ViaField("spec")
-}
-
-// Validate implements apis.Validatable
-func (ass *AddressableServiceSpec) Validate(ctx context.Context) *apis.FieldError {
-	if ass.ServiceName == "" {
-		return apis.ErrMissingField("serviceName")
-	}
-	return nil
-}

@@ -18,10 +18,10 @@ limitations under the License.
 
 package v1alpha1
 
-// AddressableServiceListerExpansion allows custom methods to be added to
-// AddressableServiceLister.
-type AddressableServiceListerExpansion interface{}
+// TaskListerExpansion allows custom methods to be added to
+// TaskLister.
+type TaskListerExpansion interface{}
 
-// AddressableServiceNamespaceListerExpansion allows custom methods to be added to
-// AddressableServiceNamespaceLister.
-type AddressableServiceNamespaceListerExpansion interface{}
+// TaskNamespaceListerExpansion allows custom methods to be added to
+// TaskNamespaceLister.
+type TaskNamespaceListerExpansion interface{}

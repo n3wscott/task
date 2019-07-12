@@ -34,7 +34,7 @@ import (
 	"knative.dev/pkg/version"
 	"knative.dev/pkg/webhook"
 
-	"knative.dev/sample-controller/pkg/apis/samples/v1alpha1"
+	"github.com/n3wscott/task/pkg/apis/n3wscott/v1alpha1"
 )
 
 const (
@@ -133,7 +133,7 @@ func SharedMain(handlers map[schema.GroupVersionKind]webhook.GenericCRD, factori
 
 func main() {
 	handlers := map[schema.GroupVersionKind]webhook.GenericCRD{
-		v1alpha1.SchemeGroupVersion.WithKind("AddressableService"): &v1alpha1.AddressableService{},
+		v1alpha1.SchemeGroupVersion.WithKind("Task"): &v1alpha1.Task{},
 	}
 	SharedMain(handlers)
 

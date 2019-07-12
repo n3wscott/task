@@ -14,14 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package addressableservice
+package task
 
 import (
 	"context"
 
 	svcinformer "knative.dev/pkg/injection/informers/kubeinformers/corev1/service"
-	asclient "knative.dev/sample-controller/pkg/client/injection/client"
-	asinformer "knative.dev/sample-controller/pkg/client/injection/informers/samples/v1alpha1/addressableservice"
+	asclient "github.com/n3wscott/task/pkg/client/injection/client"
+	asinformer "github.com/n3wscott/task/pkg/client/injection/informers/samples/v1alpha1/addressableservice"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -53,7 +53,7 @@ func NewController(
 		Recorder: record.NewBroadcaster().NewRecorder(
 			scheme.Scheme, corev1.EventSource{Component: controllerAgentName}),
 	}
-	impl := controller.NewImpl(c, logger, "AddressableServices")
+	impl := controller.NewImpl(c, logger, "Tasks")
 
 	logger.Info("Setting up event handlers")
 

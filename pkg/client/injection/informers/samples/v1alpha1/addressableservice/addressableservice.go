@@ -24,8 +24,8 @@ import (
 	controller "knative.dev/pkg/controller"
 	injection "knative.dev/pkg/injection"
 	logging "knative.dev/pkg/logging"
-	v1alpha1 "knative.dev/sample-controller/pkg/client/informers/externalversions/samples/v1alpha1"
-	factory "knative.dev/sample-controller/pkg/client/injection/informers/samples/factory"
+	v1alpha1 "github.com/n3wscott/task/pkg/client/informers/externalversions/samples/v1alpha1"
+	factory "github.com/n3wscott/task/pkg/client/injection/informers/samples/factory"
 )
 
 func init() {
@@ -37,16 +37,16 @@ type Key struct{}
 
 func withInformer(ctx context.Context) (context.Context, controller.Informer) {
 	f := factory.Get(ctx)
-	inf := f.Samples().V1alpha1().AddressableServices()
+	inf := f.Samples().V1alpha1().Tasks()
 	return context.WithValue(ctx, Key{}, inf), inf.Informer()
 }
 
 // Get extracts the typed informer from the context.
-func Get(ctx context.Context) v1alpha1.AddressableServiceInformer {
+func Get(ctx context.Context) v1alpha1.TaskInformer {
 	untyped := ctx.Value(Key{})
 	if untyped == nil {
 		logging.FromContext(ctx).Fatalf(
-			"Unable to fetch %T from context.", (v1alpha1.AddressableServiceInformer)(nil))
+			"Unable to fetch %T from context.", (v1alpha1.TaskInformer)(nil))
 	}
-	return untyped.(v1alpha1.AddressableServiceInformer)
+	return untyped.(v1alpha1.TaskInformer)
 }

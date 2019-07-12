@@ -23,38 +23,38 @@ import (
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	rest "k8s.io/client-go/rest"
-	v1alpha1 "knative.dev/sample-controller/pkg/apis/samples/v1alpha1"
-	scheme "knative.dev/sample-controller/pkg/client/clientset/versioned/scheme"
+	v1alpha1 "github.com/n3wscott/task/pkg/apis/n3wscott/v1alpha1"
+	scheme "github.com/n3wscott/task/pkg/client/clientset/versioned/scheme"
 )
 
-// AddressableServicesGetter has a method to return a AddressableServiceInterface.
+// TasksGetter has a method to return a TaskInterface.
 // A group's client should implement this interface.
-type AddressableServicesGetter interface {
-	AddressableServices(namespace string) AddressableServiceInterface
+type TasksGetter interface {
+	Tasks(namespace string) TaskInterface
 }
 
-// AddressableServiceInterface has methods to work with AddressableService resources.
-type AddressableServiceInterface interface {
-	Create(*v1alpha1.AddressableService) (*v1alpha1.AddressableService, error)
-	Update(*v1alpha1.AddressableService) (*v1alpha1.AddressableService, error)
-	UpdateStatus(*v1alpha1.AddressableService) (*v1alpha1.AddressableService, error)
+// TaskInterface has methods to work with Task resources.
+type TaskInterface interface {
+	Create(*v1alpha1.Task) (*v1alpha1.Task, error)
+	Update(*v1alpha1.Task) (*v1alpha1.Task, error)
+	UpdateStatus(*v1alpha1.Task) (*v1alpha1.Task, error)
 	Delete(name string, options *v1.DeleteOptions) error
 	DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error
-	Get(name string, options v1.GetOptions) (*v1alpha1.AddressableService, error)
-	List(opts v1.ListOptions) (*v1alpha1.AddressableServiceList, error)
+	Get(name string, options v1.GetOptions) (*v1alpha1.Task, error)
+	List(opts v1.ListOptions) (*v1alpha1.TaskList, error)
 	Watch(opts v1.ListOptions) (watch.Interface, error)
-	Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.AddressableService, err error)
-	AddressableServiceExpansion
+	Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.Task, err error)
+	TaskExpansion
 }
 
-// addressableServices implements AddressableServiceInterface
+// addressableServices implements TaskInterface
 type addressableServices struct {
 	client rest.Interface
 	ns     string
 }
 
-// newAddressableServices returns a AddressableServices
-func newAddressableServices(c *SamplesV1alpha1Client, namespace string) *addressableServices {
+// newTasks returns a Tasks
+func newTasks(c *SamplesV1alpha1Client, namespace string) *addressableServices {
 	return &addressableServices{
 		client: c.RESTClient(),
 		ns:     namespace,
@@ -62,8 +62,8 @@ func newAddressableServices(c *SamplesV1alpha1Client, namespace string) *address
 }
 
 // Get takes name of the addressableService, and returns the corresponding addressableService object, and an error if there is any.
-func (c *addressableServices) Get(name string, options v1.GetOptions) (result *v1alpha1.AddressableService, err error) {
-	result = &v1alpha1.AddressableService{}
+func (c *addressableServices) Get(name string, options v1.GetOptions) (result *v1alpha1.Task, err error) {
+	result = &v1alpha1.Task{}
 	err = c.client.Get().
 		Namespace(c.ns).
 		Resource("addressableservices").
@@ -74,9 +74,9 @@ func (c *addressableServices) Get(name string, options v1.GetOptions) (result *v
 	return
 }
 
-// List takes label and field selectors, and returns the list of AddressableServices that match those selectors.
-func (c *addressableServices) List(opts v1.ListOptions) (result *v1alpha1.AddressableServiceList, err error) {
-	result = &v1alpha1.AddressableServiceList{}
+// List takes label and field selectors, and returns the list of Tasks that match those selectors.
+func (c *addressableServices) List(opts v1.ListOptions) (result *v1alpha1.TaskList, err error) {
+	result = &v1alpha1.TaskList{}
 	err = c.client.Get().
 		Namespace(c.ns).
 		Resource("addressableservices").
@@ -97,8 +97,8 @@ func (c *addressableServices) Watch(opts v1.ListOptions) (watch.Interface, error
 }
 
 // Create takes the representation of a addressableService and creates it.  Returns the server's representation of the addressableService, and an error, if there is any.
-func (c *addressableServices) Create(addressableService *v1alpha1.AddressableService) (result *v1alpha1.AddressableService, err error) {
-	result = &v1alpha1.AddressableService{}
+func (c *addressableServices) Create(addressableService *v1alpha1.Task) (result *v1alpha1.Task, err error) {
+	result = &v1alpha1.Task{}
 	err = c.client.Post().
 		Namespace(c.ns).
 		Resource("addressableservices").
@@ -109,8 +109,8 @@ func (c *addressableServices) Create(addressableService *v1alpha1.AddressableSer
 }
 
 // Update takes the representation of a addressableService and updates it. Returns the server's representation of the addressableService, and an error, if there is any.
-func (c *addressableServices) Update(addressableService *v1alpha1.AddressableService) (result *v1alpha1.AddressableService, err error) {
-	result = &v1alpha1.AddressableService{}
+func (c *addressableServices) Update(addressableService *v1alpha1.Task) (result *v1alpha1.Task, err error) {
+	result = &v1alpha1.Task{}
 	err = c.client.Put().
 		Namespace(c.ns).
 		Resource("addressableservices").
@@ -124,8 +124,8 @@ func (c *addressableServices) Update(addressableService *v1alpha1.AddressableSer
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
 
-func (c *addressableServices) UpdateStatus(addressableService *v1alpha1.AddressableService) (result *v1alpha1.AddressableService, err error) {
-	result = &v1alpha1.AddressableService{}
+func (c *addressableServices) UpdateStatus(addressableService *v1alpha1.Task) (result *v1alpha1.Task, err error) {
+	result = &v1alpha1.Task{}
 	err = c.client.Put().
 		Namespace(c.ns).
 		Resource("addressableservices").
@@ -160,8 +160,8 @@ func (c *addressableServices) DeleteCollection(options *v1.DeleteOptions, listOp
 }
 
 // Patch applies the patch and returns the patched addressableService.
-func (c *addressableServices) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.AddressableService, err error) {
-	result = &v1alpha1.AddressableService{}
+func (c *addressableServices) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.Task, err error) {
+	result = &v1alpha1.Task{}
 	err = c.client.Patch(pt).
 		Namespace(c.ns).
 		Resource("addressableservices").

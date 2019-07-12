@@ -17,9 +17,9 @@ kind: Service
 metadata:
   labels:
     role: webhook
-    samples.knative.dev/release: devel
+    n3wscott.com/release: devel
   name: webhook
-  namespace: knative-samples
+  namespace: n3wscott-system
 spec:
   ports:
     - port: 443

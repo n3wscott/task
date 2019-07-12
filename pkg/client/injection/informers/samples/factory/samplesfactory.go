@@ -24,8 +24,8 @@ import (
 	controller "knative.dev/pkg/controller"
 	injection "knative.dev/pkg/injection"
 	logging "knative.dev/pkg/logging"
-	externalversions "knative.dev/sample-controller/pkg/client/informers/externalversions"
-	client "knative.dev/sample-controller/pkg/client/injection/client"
+	externalversions "github.com/n3wscott/task/pkg/client/informers/externalversions"
+	client "github.com/n3wscott/task/pkg/client/injection/client"
 )
 
 func init() {

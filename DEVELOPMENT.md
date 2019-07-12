@@ -46,7 +46,7 @@ export PATH="${PATH}:${GOPATH}/bin"
 ### Checkout your fork
 
 The Go tools require that you clone the repository to the
-`src/knative.dev/sample-controller` directory in your
+`src/github.com/n3wscott/task` directory in your
 [`GOPATH`](https://github.com/golang/go/wiki/SettingGOPATH).
 
 To check out this repository:
@@ -60,7 +60,7 @@ mkdir -p ${GOPATH}/src/knative.dev
 cd ${GOPATH}/src/knative.dev
 git clone git@github.com:${YOUR_GITHUB_USERNAME}/sample-controller.git
 cd sample-controller
-git remote add upstream https://knative.dev/sample-controller.git
+git remote add upstream https://github.com/n3wscott/task.git
 git remote set-url --push upstream no_push
 ```
 

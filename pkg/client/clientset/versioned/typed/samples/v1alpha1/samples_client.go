@@ -21,22 +21,22 @@ package v1alpha1
 import (
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	rest "k8s.io/client-go/rest"
-	v1alpha1 "knative.dev/sample-controller/pkg/apis/samples/v1alpha1"
-	"knative.dev/sample-controller/pkg/client/clientset/versioned/scheme"
+	v1alpha1 "github.com/n3wscott/task/pkg/apis/n3wscott/v1alpha1"
+	"github.com/n3wscott/task/pkg/client/clientset/versioned/scheme"
 )
 
 type SamplesV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	AddressableServicesGetter
+	TasksGetter
 }
 
-// SamplesV1alpha1Client is used to interact with features provided by the samples.knative.dev group.
+// SamplesV1alpha1Client is used to interact with features provided by the n3wscott.com group.
 type SamplesV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *SamplesV1alpha1Client) AddressableServices(namespace string) AddressableServiceInterface {
-	return newAddressableServices(c, namespace)
+func (c *SamplesV1alpha1Client) Tasks(namespace string) TaskInterface {
+	return newTasks(c, namespace)
 }
 
 // NewForConfig creates a new SamplesV1alpha1Client for the given config.

@@ -25,17 +25,17 @@ import (
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
 	cache "k8s.io/client-go/tools/cache"
-	samplesv1alpha1 "knative.dev/sample-controller/pkg/apis/samples/v1alpha1"
-	versioned "knative.dev/sample-controller/pkg/client/clientset/versioned"
-	internalinterfaces "knative.dev/sample-controller/pkg/client/informers/externalversions/internalinterfaces"
-	v1alpha1 "knative.dev/sample-controller/pkg/client/listers/samples/v1alpha1"
+	samplesv1alpha1 "github.com/n3wscott/task/pkg/apis/n3wscott/v1alpha1"
+	versioned "github.com/n3wscott/task/pkg/client/clientset/versioned"
+	internalinterfaces "github.com/n3wscott/task/pkg/client/informers/externalversions/internalinterfaces"
+	v1alpha1 "github.com/n3wscott/task/pkg/client/listers/samples/v1alpha1"
 )
 
-// AddressableServiceInformer provides access to a shared informer and lister for
-// AddressableServices.
-type AddressableServiceInformer interface {
+// TaskInformer provides access to a shared informer and lister for
+// Tasks.
+type TaskInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1alpha1.AddressableServiceLister
+	Lister() v1alpha1.TaskLister
 }
 
 type addressableServiceInformer struct {
@@ -44,46 +44,46 @@ type addressableServiceInformer struct {
 	namespace        string
 }
 
-// NewAddressableServiceInformer constructs a new informer for AddressableService type.
+// NewTaskInformer constructs a new informer for Task type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewAddressableServiceInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
-	return NewFilteredAddressableServiceInformer(client, namespace, resyncPeriod, indexers, nil)
+func NewTaskInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
+	return NewFilteredTaskInformer(client, namespace, resyncPeriod, indexers, nil)
 }
 
-// NewFilteredAddressableServiceInformer constructs a new informer for AddressableService type.
+// NewFilteredTaskInformer constructs a new informer for Task type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewFilteredAddressableServiceInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
+func NewFilteredTaskInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
 	return cache.NewSharedIndexInformer(
 		&cache.ListWatch{
 			ListFunc: func(options v1.ListOptions) (runtime.Object, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.SamplesV1alpha1().AddressableServices(namespace).List(options)
+				return client.SamplesV1alpha1().Tasks(namespace).List(options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.SamplesV1alpha1().AddressableServices(namespace).Watch(options)
+				return client.SamplesV1alpha1().Tasks(namespace).Watch(options)
 			},
 		},
-		&samplesv1alpha1.AddressableService{},
+		&samplesv1alpha1.Task{},
 		resyncPeriod,
 		indexers,
 	)
 }
 
 func (f *addressableServiceInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-	return NewFilteredAddressableServiceInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
+	return NewFilteredTaskInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
 }
 
 func (f *addressableServiceInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&samplesv1alpha1.AddressableService{}, f.defaultInformer)
+	return f.factory.InformerFor(&samplesv1alpha1.Task{}, f.defaultInformer)
 }
 
-func (f *addressableServiceInformer) Lister() v1alpha1.AddressableServiceLister {
-	return v1alpha1.NewAddressableServiceLister(f.Informer().GetIndexer())
+func (f *addressableServiceInformer) Lister() v1alpha1.TaskLister {
+	return v1alpha1.NewTaskLister(f.Informer().GetIndexer())
 }
