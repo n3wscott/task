@@ -21,36 +21,39 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/n3wscott/task/pkg/apis/n3wscott/v1alpha1"
+	clientset "github.com/n3wscott/task/pkg/client/clientset/versioned"
+	listers "github.com/n3wscott/task/pkg/client/listers/n3wscott/v1alpha1"
+	"github.com/n3wscott/task/pkg/reconciler/task/resources"
+
 	"go.uber.org/zap"
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/kubernetes"
 	corev1listers "k8s.io/client-go/listers/core/v1"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
 	"knative.dev/pkg/apis"
-	duckv1beta1 "knative.dev/pkg/apis/duck/v1beta1"
 	"knative.dev/pkg/controller"
 	"knative.dev/pkg/logging"
-	"knative.dev/pkg/tracker"
-	"github.com/n3wscott/task/pkg/apis/n3wscott/v1alpha1"
-	clientset "github.com/n3wscott/task/pkg/client/clientset/versioned"
-	listers "github.com/n3wscott/task/pkg/client/listers/samples/v1alpha1"
 )
 
 // Reconciler implements controller.Reconciler for Task resources.
 type Reconciler struct {
+	// KubeClientSet allows us to talk to the k8s for core APIs
+	KubeClientSet kubernetes.Interface
+
 	// Client is used to write back status updates.
 	Client clientset.Interface
 
 	// Listers index properties about resources
 	Lister        listers.TaskLister
 	ServiceLister corev1listers.ServiceLister
-
-	// The tracker builds an index of what resources are watching other
-	// resources so that we can immediately react to changes to changes in
-	// tracked resources.
-	Tracker tracker.Interface
 
 	// Recorder is an event recorder for recording Event resources to the
 	// Kubernetes API.
@@ -107,53 +110,128 @@ func (r *Reconciler) Reconcile(ctx context.Context, key string) error {
 	return reconcileErr
 }
 
-func (r *Reconciler) reconcile(ctx context.Context, asvc *v1alpha1.Task) error {
-	if asvc.GetDeletionTimestamp() != nil {
+func (r *Reconciler) reconcile(ctx context.Context, task *v1alpha1.Task) error {
+	if task.GetDeletionTimestamp() != nil {
 		// Check for a DeletionTimestamp.  If present, elide the normal reconcile logic.
 		// When a controller needs finalizer handling, it would go here.
 		return nil
 	}
-	asvc.Status.InitializeConditions()
+	task.Status.InitializeConditions()
 
-	if err := r.reconcileService(ctx, asvc); err != nil {
+	if err := r.reconcileJob(ctx, task); err != nil {
 		return err
 	}
 
-	asvc.Status.ObservedGeneration = asvc.Generation
+	if err := r.reconcileService(ctx, task); err != nil {
+		return err
+	}
+
+	task.Status.ObservedGeneration = task.Generation
 	return nil
 }
 
-func (r *Reconciler) reconcileService(ctx context.Context, asvc *v1alpha1.Task) error {
-	logger := logging.FromContext(ctx)
-
-	if err := r.Tracker.Track(corev1.ObjectReference{
-		APIVersion: "v1",
-		Kind:       "Service",
-		Name:       asvc.Spec.ServiceName,
-		Namespace:  asvc.Namespace,
-	}, asvc); err != nil {
-		logger.Errorf("Error tracking service %s: %v", asvc.Spec.ServiceName, err)
-		return err
-	}
-
-	_, err := r.ServiceLister.Services(asvc.Namespace).Get(asvc.Spec.ServiceName)
+func (r *Reconciler) reconcileJob(ctx context.Context, task *v1alpha1.Task) error {
+	job, err := r.getJob(ctx, task, labels.SelectorFromSet(resources.Labels(task)))
+	// If the resource doesn't exist, we'll create it
 	if apierrs.IsNotFound(err) {
-		logger.Info("Service does not yet exist:", asvc.Spec.ServiceName)
-		asvc.Status.MarkServiceUnavailable(asvc.Spec.ServiceName)
+		job = resources.MakeJob(resources.Arguments{
+			Owner:     task,
+			Namespace: task.Namespace,
+			Template:  task.Spec.Template,
+		})
+
+		job, err := r.KubeClientSet.BatchV1().Jobs(task.Namespace).Create(job)
+		if err != nil || job == nil {
+			msg := "Failed to make Job."
+			if err != nil {
+				msg = msg + " " + err.Error()
+			}
+			task.Status.MarkJobFailed("FailedCreate", msg)
+			return fmt.Errorf("failed to create Job: %s", err)
+		}
+		task.Status.MarkJobRunning("Created Job %q.", job.Name)
 		return nil
 	} else if err != nil {
-		logger.Errorf("Error reconciling service %s: %v", asvc.Spec.ServiceName, err)
+		task.Status.MarkJobFailed("FailedGet", err.Error())
+		return fmt.Errorf("failed to get Job: %s", err)
+	}
+
+	if isJobComplete(job) {
+		if isJobSucceeded(job) {
+			task.Status.MarkJobSucceeded()
+		} else if isJobFailed(job) {
+			task.Status.MarkJobFailed(jobFailedReasonMessage(job))
+		}
+	}
+	return nil
+}
+
+func (r *Reconciler) getJob(ctx context.Context, owner metav1.Object, ls labels.Selector) (*batchv1.Job, error) {
+	list, err := r.KubeClientSet.BatchV1().Jobs(owner.GetNamespace()).List(metav1.ListOptions{
+		LabelSelector: ls.String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, i := range list.Items {
+		if metav1.IsControlledBy(&i, owner) {
+			return &i, nil
+		}
+	}
+
+	return nil, apierrs.NewNotFound(schema.GroupResource{}, "")
+}
+
+func (r *Reconciler) reconcileService(ctx context.Context, task *v1alpha1.Task) error {
+	svc, err := r.getService(ctx, task, labels.SelectorFromSet(resources.Labels(task)))
+	if apierrs.IsNotFound(err) {
+
+		svc = resources.MakeService(resources.Arguments{
+			Owner:     task,
+			Namespace: task.Namespace,
+			Template:  task.Spec.Template,
+		})
+
+		var err error
+		svc, err = r.KubeClientSet.CoreV1().Services(task.Namespace).Create(svc)
+		if err != nil || svc == nil {
+			msg := "Failed to make Service."
+			if err != nil {
+				msg = msg + " " + err.Error()
+			}
+			task.Status.MarkAddress(nil)
+			return fmt.Errorf("failed to create Job: %s", err)
+		}
+	} else if err != nil {
+		task.Status.MarkAddress(nil)
 		return err
 	}
 
-	asvc.Status.MarkServiceAvailable()
-	asvc.Status.Address = &duckv1beta1.Addressable{
-		URL: &apis.URL{
-			Scheme: "http",
-			Host:   fmt.Sprintf("%s.%s.svc.cluster.local", asvc.Spec.ServiceName, asvc.Namespace),
-		},
+	url := &apis.URL{
+		Scheme: "http",
+		Host:   fmt.Sprintf("%s.%s.svc.cluster.local", svc.Name, svc.Namespace),
 	}
+
+	task.Status.MarkAddress(url)
 	return nil
+}
+
+func (r *Reconciler) getService(ctx context.Context, owner metav1.Object, ls labels.Selector) (*corev1.Service, error) {
+	list, err := r.KubeClientSet.CoreV1().Services(owner.GetNamespace()).List(metav1.ListOptions{
+		LabelSelector: ls.String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, i := range list.Items {
+		if metav1.IsControlledBy(&i, owner) {
+			return &i, nil
+		}
+	}
+
+	return nil, apierrs.NewNotFound(schema.GroupResource{}, "")
 }
 
 // Update the Status of the resource.  Caller is responsible for checking
@@ -170,5 +248,45 @@ func (r *Reconciler) updateStatus(desired *v1alpha1.Task) (*v1alpha1.Task, error
 	// Don't modify the informers copy
 	existing := actual.DeepCopy()
 	existing.Status = desired.Status
-	return r.Client.SamplesV1alpha1().Tasks(desired.Namespace).UpdateStatus(existing)
+	return r.Client.N3wscottV1alpha1().Tasks(desired.Namespace).UpdateStatus(existing)
+}
+
+func isJobComplete(job *batchv1.Job) bool {
+	for _, c := range job.Status.Conditions {
+		if c.Type == batchv1.JobComplete && c.Status == corev1.ConditionTrue {
+			return true
+		}
+	}
+	return false
+}
+
+func isJobSucceeded(job *batchv1.Job) bool {
+	return !isJobFailed(job)
+}
+
+func isJobFailed(job *batchv1.Job) bool {
+	for _, c := range job.Status.Conditions {
+		if c.Type == batchv1.JobFailed && c.Status == corev1.ConditionTrue {
+			return true
+		}
+	}
+	return false
+}
+
+func jobFailedReasonMessage(job *batchv1.Job) (string, string) { // returns (reason, message)
+	for _, c := range job.Status.Conditions {
+		if c.Type == batchv1.JobFailed && c.Status == corev1.ConditionTrue {
+			return c.Reason, c.Message
+		}
+	}
+	return "", ""
+}
+
+func getFirstTerminationMessage(pod *corev1.Pod) string {
+	for _, cs := range pod.Status.ContainerStatuses {
+		if cs.State.Terminated != nil && cs.State.Terminated.Message != "" {
+			return cs.State.Terminated.Message
+		}
+	}
+	return ""
 }

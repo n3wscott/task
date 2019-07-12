@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"knative.dev/pkg/apis"
@@ -50,14 +51,22 @@ var _ kmeta.OwnerRefable = (*Task)(nil)
 
 // TaskSpec holds the desired state of the Task (from the client).
 type TaskSpec struct {
-	// ServiceName holds the name of the Kubernetes Service to expose as an "addressable".
-	ServiceName string `json:"serviceName"`
+	// Template describes the pods that will be created
+	// +optional
+	Template *corev1.PodTemplateSpec `json:"template,omitempty"`
 }
 
 const (
 	// TaskConditionReady is set when the revision is starting to materialize
 	// runtime resources, and becomes true when those resources are ready.
-	TaskConditionReady = apis.ConditionSucceeded
+	TaskConditionSucceeded = apis.ConditionSucceeded
+
+	// TaskConditionAddressable has status true when this Task meets the
+	// Addressable contract.
+	TaskConditionAddressable apis.ConditionType = "Addressable"
+
+	// TaskConditionResult tracks the job result.
+	TaskConditionResult apis.ConditionType = "Result"
 )
 
 // TaskStatus communicates the observed state of the Task (from the controller).

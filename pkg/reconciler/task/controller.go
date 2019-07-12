@@ -19,21 +19,24 @@ package task
 import (
 	"context"
 
-	svcinformer "knative.dev/pkg/injection/informers/kubeinformers/corev1/service"
-	asclient "github.com/n3wscott/task/pkg/client/injection/client"
-	asinformer "github.com/n3wscott/task/pkg/client/injection/informers/samples/v1alpha1/addressableservice"
-
+	"github.com/n3wscott/task/pkg/apis/n3wscott/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
 	"knative.dev/pkg/logging"
-	"knative.dev/pkg/tracker"
+
+	"github.com/n3wscott/task/pkg/client/injection/client"
+	taskinformer "github.com/n3wscott/task/pkg/client/injection/informers/n3wscott/v1alpha1/task"
+	"knative.dev/pkg/injection/clients/kubeclient"
+	jobinformer "knative.dev/pkg/injection/informers/kubeinformers/batchv1/job"
+	svcinformer "knative.dev/pkg/injection/informers/kubeinformers/corev1/service"
 )
 
 const (
-	controllerAgentName = "addressableservice-controller"
+	controllerAgentName = "task-controller"
 )
 
 // NewController returns a new HPA reconcile controller.
@@ -43,12 +46,14 @@ func NewController(
 ) *controller.Impl {
 	logger := logging.FromContext(ctx)
 
-	asInformer := asinformer.Get(ctx)
+	taskInformer := taskinformer.Get(ctx)
 	svcInformer := svcinformer.Get(ctx)
+	jobInformer := jobinformer.Get(ctx)
 
 	c := &Reconciler{
-		Client:        asclient.Get(ctx),
-		Lister:        asInformer.Lister(),
+		KubeClientSet: kubeclient.Get(ctx),
+		Client:        client.Get(ctx),
+		Lister:        taskInformer.Lister(),
 		ServiceLister: svcInformer.Lister(),
 		Recorder: record.NewBroadcaster().NewRecorder(
 			scheme.Scheme, corev1.EventSource{Component: controllerAgentName}),
@@ -57,17 +62,16 @@ func NewController(
 
 	logger.Info("Setting up event handlers")
 
-	asInformer.Informer().AddEventHandler(controller.HandleAll(impl.Enqueue))
+	taskInformer.Informer().AddEventHandler(controller.HandleAll(impl.Enqueue))
 
-	c.Tracker = tracker.New(impl.EnqueueKey, controller.GetTrackerLease(ctx))
-	svcInformer.Informer().AddEventHandler(controller.HandleAll(
-		// Call the tracker's OnChanged method, but we've seen the objects
-		// coming through this path missing TypeMeta, so ensure it is properly
-		// populated.
-		controller.EnsureTypeMeta(
-			c.Tracker.OnChanged,
-			corev1.SchemeGroupVersion.WithKind("Service"),
-		),
-	))
+	svcInformer.Informer().AddEventHandler(cache.FilteringResourceEventHandler{
+		FilterFunc: controller.Filter(v1alpha1.SchemeGroupVersion.WithKind("Task")),
+		Handler:    controller.HandleAll(impl.EnqueueControllerOf),
+	})
+
+	jobInformer.Informer().AddEventHandler(cache.FilteringResourceEventHandler{
+		FilterFunc: controller.Filter(v1alpha1.SchemeGroupVersion.WithKind("Task")),
+		Handler:    controller.HandleAll(impl.EnqueueControllerOf),
+	})
 	return impl
 }

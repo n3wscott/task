@@ -19,18 +19,21 @@ package v1alpha1
 import (
 	"context"
 
+	"k8s.io/apimachinery/pkg/api/equality"
+	corev1 "k8s.io/api/core/v1"
+
 	"knative.dev/pkg/apis"
 )
 
 // Validate implements apis.Validatable
-func (as *Task) Validate(ctx context.Context) *apis.FieldError {
-	return as.Spec.Validate(ctx).ViaField("spec")
+func (t *Task) Validate(ctx context.Context) *apis.FieldError {
+	return t.Spec.Validate(ctx).ViaField("spec")
 }
 
 // Validate implements apis.Validatable
-func (ass *TaskSpec) Validate(ctx context.Context) *apis.FieldError {
-	if ass.ServiceName == "" {
-		return apis.ErrMissingField("serviceName")
+func (current *TaskSpec) Validate(ctx context.Context) *apis.FieldError {
+	if current.Template != nil && !equality.Semantic.DeepEqual(current.Template, &corev1.PodTemplateSpec{}) {
+		return apis.ErrMissingField("template")
 	}
 	return nil
 }

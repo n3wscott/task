@@ -19,26 +19,41 @@ package v1alpha1
 import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"knative.dev/pkg/apis"
+	"knative.dev/pkg/apis/duck/v1beta1"
 )
 
 var condSet = apis.NewBatchConditionSet()
 
 // GetGroupVersionKind implements kmeta.OwnerRefable
-func (as *Task) GetGroupVersionKind() schema.GroupVersionKind {
+func (t *Task) GetGroupVersionKind() schema.GroupVersionKind {
 	return SchemeGroupVersion.WithKind("Task")
 }
 
-func (ass *TaskStatus) InitializeConditions() {
-	condSet.Manage(ass).InitializeConditions()
+func (ts *TaskStatus) InitializeConditions() {
+	condSet.Manage(ts).InitializeConditions()
 }
 
-func (ass *TaskStatus) MarkServiceUnavailable(name string) {
-	condSet.Manage(ass).MarkFalse(
-		TaskConditionReady,
-		"ServiceUnavailable",
-		"Service %q wasn't found.", name)
+func (ts *TaskStatus) MarkAddress(url *apis.URL) {
+	if ts.Address == nil {
+		ts.Address = &v1beta1.Addressable{}
+	}
+	if url != nil {
+		ts.Address.URL = url
+		condSet.Manage(ts).MarkTrue(TaskConditionAddressable)
+	} else {
+		ts.Address.URL = nil
+		condSet.Manage(ts).MarkFalse(TaskConditionAddressable, "ServiceUnavailable", "Service was not created.")
+	}
 }
 
-func (ass *TaskStatus) MarkServiceAvailable() {
-	condSet.Manage(ass).MarkTrue(TaskConditionReady)
+func (ts *TaskStatus) MarkJobSucceeded() {
+	condSet.Manage(ts).MarkTrue(TaskConditionResult)
+}
+
+func (ts *TaskStatus) MarkJobRunning(messageFormat string, messageA ...interface{}) {
+	condSet.Manage(ts).MarkUnknown(TaskConditionResult, "Active", messageFormat, messageA...)
+}
+
+func (ts *TaskStatus) MarkJobFailed(reason, messageFormat string, messageA ...interface{}) {
+	condSet.Manage(ts).MarkFalse(TaskConditionResult, reason, messageFormat, messageA...)
 }
