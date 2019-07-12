@@ -132,6 +132,16 @@ func (r *Reconciler) reconcile(ctx context.Context, task *v1alpha1.Task) error {
 
 func (r *Reconciler) reconcileJob(ctx context.Context, task *v1alpha1.Task) error {
 	job, err := r.getJob(ctx, task, labels.SelectorFromSet(resources.Labels(task)))
+
+	// TODO: This should be an option. Comment out for now.
+	//if task.Status.IsDone() {
+	//	task.Status.ClearAddress()
+	//	if job != nil {
+	//		_ = r.KubeClientSet.BatchV1().Jobs(task.Namespace).Delete(job.Name, &metav1.DeleteOptions{})
+	//	}
+	//	return nil
+	//}
+
 	// If the resource doesn't exist, we'll create it
 	if apierrs.IsNotFound(err) {
 		job = resources.MakeJob(resources.Arguments{
@@ -185,8 +195,16 @@ func (r *Reconciler) getJob(ctx context.Context, owner metav1.Object, ls labels.
 
 func (r *Reconciler) reconcileService(ctx context.Context, task *v1alpha1.Task) error {
 	svc, err := r.getService(ctx, task, labels.SelectorFromSet(resources.Labels(task)))
-	if apierrs.IsNotFound(err) {
 
+	if task.Status.IsDone() {
+		task.Status.ClearAddress()
+		if svc != nil {
+			_ = r.KubeClientSet.CoreV1().Services(task.Namespace).Delete(svc.Name, &metav1.DeleteOptions{})
+		}
+		return nil
+	}
+
+	if apierrs.IsNotFound(err) {
 		svc = resources.MakeService(resources.Arguments{
 			Owner:     task,
 			Namespace: task.Namespace,

@@ -1,0 +1,9 @@
+apiVersion: n3wscott.com/v1alpha1
+kind: Task
+metadata:
+  name: demo
+spec:
+  template:
+    spec:
+      containers:
+        - image: github.com/n3wscott/task/cmd/demo

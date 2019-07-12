@@ -33,6 +33,15 @@ func (ts *TaskStatus) InitializeConditions() {
 	condSet.Manage(ts).InitializeConditions()
 }
 
+func (ts *TaskStatus) IsDone() bool {
+	return condSet.Manage(ts).IsHappy()
+}
+
+func (ts *TaskStatus) ClearAddress() {
+	condSet.Manage(ts).MarkTrue(TaskConditionAddressable)
+	ts.Address = nil
+}
+
 func (ts *TaskStatus) MarkAddress(url *apis.URL) {
 	if ts.Address == nil {
 		ts.Address = &v1beta1.Addressable{}

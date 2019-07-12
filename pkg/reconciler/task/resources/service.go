@@ -30,6 +30,7 @@ func MakeService(args Arguments) *corev1.Service {
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: svcName(args.Owner),
 			Namespace:    args.Namespace,
+			Labels:       Labels(args.Owner),
 			OwnerReferences: []metav1.OwnerReference{
 				*kmeta.NewControllerRef(args.Owner),
 			},

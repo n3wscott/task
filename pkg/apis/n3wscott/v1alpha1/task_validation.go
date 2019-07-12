@@ -19,8 +19,8 @@ package v1alpha1
 import (
 	"context"
 
-	"k8s.io/apimachinery/pkg/api/equality"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/equality"
 
 	"knative.dev/pkg/apis"
 )
@@ -32,7 +32,7 @@ func (t *Task) Validate(ctx context.Context) *apis.FieldError {
 
 // Validate implements apis.Validatable
 func (current *TaskSpec) Validate(ctx context.Context) *apis.FieldError {
-	if current.Template != nil && !equality.Semantic.DeepEqual(current.Template, &corev1.PodTemplateSpec{}) {
+	if current.Template != nil && equality.Semantic.DeepEqual(current.Template, &corev1.PodTemplateSpec{}) {
 		return apis.ErrMissingField("template")
 	}
 	return nil

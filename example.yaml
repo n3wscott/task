@@ -1,7 +1,0 @@
-apiVersion: n3wscott.com/v1alpha1
-kind: Task
-metadata:
-  name: make-it-addressable
-  namespace: n3wscott-system
-spec:
-  serviceName: webhook

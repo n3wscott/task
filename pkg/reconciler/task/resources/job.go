@@ -17,6 +17,7 @@ limitations under the License.
 package resources
 
 import (
+	"fmt"
 	"knative.dev/pkg/kmeta"
 	"knative.dev/pkg/ptr"
 	"strings"
@@ -32,9 +33,13 @@ func MakeJob(args Arguments) *batchv1.Job {
 		podTemplate.ObjectMeta.Labels = make(map[string]string)
 	}
 	podTemplate.ObjectMeta.Labels[labelKey] = args.Owner.GetObjectMeta().GetName()
+	podTemplate.Spec.RestartPolicy = corev1.RestartPolicyNever
 
 	containers := []corev1.Container{}
-	for _, c := range podTemplate.Spec.Containers {
+	for i, c := range podTemplate.Spec.Containers {
+		if c.Name == "" {
+			c.Name = fmt.Sprintf("task%d", i)
+		}
 		containers = append(containers, c)
 	}
 	podTemplate.Spec.Containers = containers
