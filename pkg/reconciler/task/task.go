@@ -273,6 +273,9 @@ func (r *Reconciler) updateStatus(desired *v1alpha1.Task) (*v1alpha1.Task, error
 
 func isJobComplete(job *batchv1.Job) bool {
 	for _, c := range job.Status.Conditions {
+		if c.Type == batchv1.JobFailed && c.Status == corev1.ConditionTrue {
+			return true
+		}
 		if c.Type == batchv1.JobComplete && c.Status == corev1.ConditionTrue {
 			return true
 		}

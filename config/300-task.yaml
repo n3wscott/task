@@ -35,9 +35,9 @@ spec:
   - name: Address
     type: string
     JSONPath: .status.address.url
-  - name: Ready
+  - name: Succeeded
     type: string
-    JSONPath: ".status.conditions[?(@.type=='Ready')].status"
+    JSONPath: ".status.conditions[?(@.type=='Succeeded')].status"
   - name: Reason
     type: string
-    JSONPath: ".status.conditions[?(@.type=='Ready')].reason"
+    JSONPath: ".status.conditions[?(@.type=='Succeeded')].reason"

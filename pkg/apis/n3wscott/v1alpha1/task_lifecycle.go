@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"knative.dev/pkg/apis"
 	"knative.dev/pkg/apis/duck/v1beta1"
@@ -37,7 +38,10 @@ func (ts *TaskStatus) InitializeConditions() {
 }
 
 func (ts *TaskStatus) IsDone() bool {
-	return condSet.Manage(ts).IsHappy()
+	if condSet.Manage(ts).GetCondition(TaskConditionResult).Status == corev1.ConditionUnknown {
+		return false
+	}
+	return true
 }
 
 func (ts *TaskStatus) ClearAddress() {
