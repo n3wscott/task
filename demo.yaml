@@ -1,0 +1,11 @@
+apiVersion: n3wscott.com/v1alpha1
+kind: Task
+metadata:
+  generateName: demo-
+spec:
+  template:
+    spec:
+      containers:
+      - image: gcr.io/n3wscott/demo-8b579f173173c7c050d96ddb357d4175@sha256:3f32f954589d403181a59c8e13f055623dce24be85f8fbfe76bcdcf0a3ca8f71
+
+---
