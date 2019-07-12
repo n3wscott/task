@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   labels:
-    n3wscott.com/release: devel
+    n3wscott.com/release: 0.1.0
   name: n3wscott-system
 
 ---
@@ -11,7 +11,7 @@ kind: ClusterRole
 metadata:
   labels:
     duck.knative.dev/addressable: "true"
-    n3wscott.com/release: devel
+    n3wscott.com/release: 0.1.0
   name: task-addressable-resolver
 rules:
 - apiGroups:
@@ -33,7 +33,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
-    n3wscott.com/release: devel
+    n3wscott.com/release: 0.1.0
   name: n3wscott-system-admin
 rules: []
 ---
@@ -42,7 +42,7 @@ kind: ClusterRole
 metadata:
   labels:
     n3wscott.com/controller: "true"
-    n3wscott.com/release: devel
+    n3wscott.com/release: 0.1.0
   name: n3wscott-system-core
 rules:
 - apiGroups:
@@ -128,7 +128,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   labels:
-    n3wscott.com/release: devel
+    n3wscott.com/release: 0.1.0
   name: controller
   namespace: n3wscott-system
 
@@ -137,7 +137,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
-    n3wscott.com/release: devel
+    n3wscott.com/release: 0.1.0
   name: n3wscott-system-controller-admin
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -154,7 +154,7 @@ kind: CustomResourceDefinition
 metadata:
   labels:
     knative.dev/crd-install: "true"
-    n3wscott.com/release: devel
+    n3wscott.com/release: 0.1.0
   name: tasks.n3wscott.com
 spec:
   additionalPrinterColumns:
@@ -184,7 +184,7 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    n3wscott.com/release: devel
+    n3wscott.com/release: 0.1.0
     role: webhook
   name: webhook
   namespace: n3wscott-system
@@ -244,7 +244,7 @@ data:
 kind: ConfigMap
 metadata:
   labels:
-    n3wscott.com/release: devel
+    n3wscott.com/release: 0.1.0
   name: config-logging
   namespace: n3wscott-system
 
@@ -320,7 +320,7 @@ data:
 kind: ConfigMap
 metadata:
   labels:
-    n3wscott.com/release: devel
+    n3wscott.com/release: 0.1.0
   name: config-observability
   namespace: n3wscott-system
 
@@ -329,7 +329,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    n3wscott.com/release: devel
+    n3wscott.com/release: 0.1.0
   name: controller
   namespace: n3wscott-system
 spec:
@@ -343,7 +343,7 @@ spec:
         sidecar.istio.io/inject: "false"
       labels:
         app: controller
-        n3wscott.com/release: devel
+        n3wscott.com/release: 0.1.0
     spec:
       containers:
       - env:
@@ -383,7 +383,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    n3wscott.com/release: devel
+    n3wscott.com/release: 0.1.0
   name: webhook
   namespace: n3wscott-system
 spec:
@@ -398,7 +398,7 @@ spec:
         sidecar.istio.io/inject: "false"
       labels:
         app: webhook
-        n3wscott.com/release: devel
+        n3wscott.com/release: 0.1.0
         role: webhook
     spec:
       containers:

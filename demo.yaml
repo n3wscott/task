@@ -2,6 +2,8 @@ apiVersion: n3wscott.com/v1alpha1
 kind: Task
 metadata:
   generateName: demo-
+  labels:
+    n3wscott.com/release: 0.1.0
 spec:
   template:
     spec:
