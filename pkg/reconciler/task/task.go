@@ -194,9 +194,11 @@ func (r *Reconciler) getJob(ctx context.Context, owner metav1.Object, ls labels.
 }
 
 func (r *Reconciler) reconcileService(ctx context.Context, task *v1alpha1.Task) error {
+	logger := logging.FromContext(ctx)
 	svc, err := r.getService(ctx, task, labels.SelectorFromSet(resources.Labels(task)))
 
 	if task.Status.IsDone() {
+		logger.Info("Task IsDone, Clearing address.")
 		task.Status.ClearAddress()
 		if svc != nil {
 			_ = r.KubeClientSet.CoreV1().Services(task.Namespace).Delete(svc.Name, &metav1.DeleteOptions{})

@@ -22,7 +22,10 @@ import (
 	"knative.dev/pkg/apis/duck/v1beta1"
 )
 
-var condSet = apis.NewBatchConditionSet()
+var condSet = apis.NewBatchConditionSet(
+	TaskConditionAddressable,
+	TaskConditionResult,
+)
 
 // GetGroupVersionKind implements kmeta.OwnerRefable
 func (t *Task) GetGroupVersionKind() schema.GroupVersionKind {
