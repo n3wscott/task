@@ -18,9 +18,14 @@ package v1alpha1
 
 import (
 	"context"
+	"fmt"
 )
 
 // SetDefaults implements apis.Defaultable
 func (as *Task) SetDefaults(ctx context.Context) {
-	// Nothing to default.
+	for i, c := range as.Spec.Template.Spec.Containers {
+		if c.Name == "" {
+			c.Name = fmt.Sprintf("task%d", i)
+		}
+	}
 }
