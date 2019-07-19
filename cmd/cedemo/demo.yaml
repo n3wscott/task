@@ -1,0 +1,23 @@
+apiVersion: n3wscott.com/v1alpha1
+kind: Task
+metadata:
+  generateName: ce-
+  annotations:
+    trigger.eventing.knative.dev/filter: |
+      [{"type":"com.n3wscott.target"}]
+  labels:
+    eventing.knative.dev/autotrigger: "true"
+spec:
+  template:
+    spec:
+      containers:
+      - image: github.com/n3wscott/task/cmd/cedemo
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace

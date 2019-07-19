@@ -11,6 +11,20 @@ The _PodSpecable_ aspect allows you to provide a pod template in Task.
 
 Task will run once and only once.
 
+## Installing
+
+To install the latest release, 
+
+```shell
+kubectl apply -f https://github.com/n3wscott/task/releases/download/v0.2.0/release.yaml
+```
+
+To install from master using [ko](github.com/google/ko),
+
+```shell
+ko -f ./config
+```
+
 ---
 
 To learn more about Knative, please visit our
