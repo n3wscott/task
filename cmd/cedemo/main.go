@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	cloudevents "github.com/cloudevents/sdk-go"
 	"github.com/kelseyhightower/envconfig"
@@ -41,10 +42,10 @@ func (r *Receiver) Receive(event cloudevents.Event) {
 		fmt.Println("failed to get target from extensions:", err)
 		return
 	}
-	if target == r.Target() {
-		fmt.Printf("Target matched, %q.\n", r.Target())
+	if strings.HasPrefix(r.Target(), target) {
+		fmt.Printf("Target prefix matched, %q.\n", r.Target())
 		os.Exit(0)
 	} else {
-		fmt.Printf("Target did not match, %q != %q.\n", target, r.Target())
+		fmt.Printf("Target prefix did not match, %q != %q.\n", target, r.Target())
 	}
 }
