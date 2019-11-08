@@ -31,7 +31,7 @@ type Receiver struct {
 
 func (r *Receiver) Receive(event cloudevents.Event) {
 	ctx := cloudevents.ContextWithTarget(context.Background(), r.Target)
-	if _, err := r.client.Send(ctx, event); err != nil {
+	if _, _, err := r.client.Send(ctx, event); err != nil {
 		fmt.Println(err)
 	}
 }
